@@ -106,12 +106,11 @@ class JS
 	}
 
 	/**
-	 * @param boolean $pattern
 	 * @return string
 	 */
-	public function getOutputFilename($pattern=false)
+	public function getOutputFilename()
 	{
-		return \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $this->getOutputBasename($pattern);
+		return \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $this->getOutputBasename();
 	}
 
 	/**
@@ -123,10 +122,9 @@ class JS
 	}
 
 	/**
-	 * @param boolean $pattern
 	 * @return string
 	 */
-	public function getOutputBasename($pattern=false)
+	public function getOutputBasename()
 	{
 		$basename = $this->module . '-' . $this->source;
 		if ($this->compress) $basename .= '.min';
