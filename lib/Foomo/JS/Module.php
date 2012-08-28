@@ -29,11 +29,8 @@ class Module extends \Foomo\Modules\ModuleBase
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	/**
-	 * the name of this module
-	 *
-	 */
-	const NAME = 'Foomo.JS';
+	const NAME		= 'Foomo.JS';
+	const VERSION	= '1.0.0';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -58,7 +55,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	{
 		return array(
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
-			\Foomo\Modules\Resource\Module::getResource('Foomo', self::VERSION),
+			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.0'),
 		);
 	}
 }
