@@ -38,18 +38,13 @@ class JS
 	 */
 	private $source;
 	/**
-	 * @var float
-	 */
-	private $version;
-	/**
 	 * @var boolean
 	 */
 	private $watch = false;
 	/**
 	 * @var boolean
 	 */
-	private $uglify = false;
-
+	private $compress = false;
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
@@ -58,13 +53,11 @@ class JS
 	/**
 	 * @param string $module
 	 * @param string $source name of the js file
-	 * @param float $version update this, if you want a safe deployment
 	 */
-	public function __construct($module, $source, $version)
+	public function __construct($module, $source)
 	{
 		$this->module = $module;
 		$this->source = (substr($source, -3) != '.js') ? $source . '.js' : $source;
-		$this->version = $version;
 		if (!\file_exists($this->getSourceFilename())) \trigger_error ('Source does not exist: ' . $this->getSourceFilename (), \E_USER_ERROR);
 	}
 
@@ -81,14 +74,6 @@ class JS
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getVersion()
-	{
-		return $this->version;
-	}
-
-	/**
 	 * @return boolean
 	 */
 	public function getWatch()
@@ -99,9 +84,9 @@ class JS
 	/**
 	 * @return boolean
 	 */
-	public function getUglify()
+	public function getCompress()
 	{
-		return $this->uglify;
+		return $this->compress;
 	}
 
 	/**
@@ -121,11 +106,12 @@ class JS
 	}
 
 	/**
+	 * @param boolean $pattern
 	 * @return string
 	 */
-	public function getOutputFilename()
+	public function getOutputFilename($pattern=false)
 	{
-		return \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $this->getOutputBasename();
+		return \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $this->getOutputBasename($pattern);
 	}
 
 	/**
@@ -137,11 +123,14 @@ class JS
 	}
 
 	/**
+	 * @param boolean $pattern
 	 * @return string
 	 */
-	public function getOutputBasename()
+	public function getOutputBasename($pattern=false)
 	{
-		return $this->module . '-' . $this->source . '-' . $this->version . (($this->uglify) ? '-uglified' : '') . '.js';
+		$basename = $this->module . '-' . $this->source;
+		if ($this->compress) $basename .= '.min';
+		return  $basename . '.js';
 	}
 
 	/**
@@ -155,12 +144,12 @@ class JS
 	}
 
 	/**
-	 * @param boolean $uglify
+	 * @param boolean $compress
 	 * @return \Foomo\JS
 	 */
-	public function uglify($uglify=true)
+	public function compress($compress=true)
 	{
-		$this->uglify = $uglify;
+		$this->compress = $compress;
 		return $this;
 	}
 
@@ -181,8 +170,8 @@ class JS
 		}
 
 		if ($compile) {
-			$success = \Foomo\JS\Utils::compile($this->getSourceFilename(), $this->getOutputFilename());
-			if ($success && $this->uglify) \Foomo\JS\Utils::uglify($this->getOutputFilename(), $this->getOutputFilename());
+			$success = \Foomo\JS\Utils::compile($source, $output);
+			if ($success && $this->compress) \Foomo\JS\Utils::uglify($output, $output);
 		}
 
 		return $this;
@@ -195,11 +184,10 @@ class JS
 	/**
 	 * @param string $module
 	 * @param string $name name of the js file
-	 * @param float $version update this, if you want a safe deployment
 	 * @return \Foomo\JS
 	 */
-	public static function create($module, $name, $version)
+	public static function create($module, $name)
 	{
-		return new self($module, $name, $version);
+		return new self($module, $name);
 	}
 }
