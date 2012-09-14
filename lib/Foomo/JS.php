@@ -32,11 +32,7 @@ class JS
 	/**
 	 * @var string
 	 */
-	private $module;
-	/**
-	 * @var string
-	 */
-	private $source;
+	private $filename;
 	/**
 	 * @var boolean
 	 */
@@ -51,27 +47,17 @@ class JS
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $module
-	 * @param string $source name of the js file
+	 * @param string $filename
 	 */
-	public function __construct($module, $source)
+	public function __construct($filename)
 	{
-		$this->module = $module;
-		$this->source = (substr($source, -3) != '.js') ? $source . '.js' : $source;
-		if (!\file_exists($this->getSourceFilename())) \trigger_error ('Source does not exist: ' . $this->getSourceFilename (), \E_USER_ERROR);
+		$this->filename = $filename;
+		if (!\file_exists($this->filename)) \trigger_error ('Source does not exist: ' . $this->filename, \E_USER_ERROR);
 	}
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Public methods
 	//---------------------------------------------------------------------------------------------
-
-	/**
-	 * @return string
-	 */
-	public function getModule()
-	{
-		return $this->module;
-	}
 
 	/**
 	 * @return boolean
@@ -92,6 +78,14 @@ class JS
 	/**
 	 * @return string
 	 */
+	public function getFilename()
+	{
+		return $this->filename;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOutputPath()
 	{
 		return \Foomo\JS\Module::getHtdocsVarPath() . DIRECTORY_SEPARATOR . $this->getOutputBasename();
@@ -102,7 +96,7 @@ class JS
 	 */
 	public function getSourceFilename()
 	{
-		return \Foomo\Config::getModuleDir($this->module) . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . $this->source;
+		return $this->filename;
 	}
 
 	/**
@@ -116,17 +110,9 @@ class JS
 	/**
 	 * @return string
 	 */
-	public function getSourceBasename()
-	{
-		return $this->source;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getOutputBasename()
 	{
-		$basename = $this->module . '-' . $this->source;
+		$basename = \md5($this->filename);
 		if ($this->compress) $basename .= '.min';
 		return  $basename . '.js';
 	}
@@ -156,7 +142,7 @@ class JS
 	 */
 	public function compile()
 	{
-		$source = $this->getSourceFilename();
+		$source = $this->getFilename();
 		$output = $this->getOutputFilename();
 
 		$compile = (!\file_exists($output));
@@ -180,12 +166,11 @@ class JS
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $module
-	 * @param string $name name of the js file
+	 * @param string $filename Path to the js file
 	 * @return \Foomo\JS
 	 */
-	public static function create($module, $name)
+	public static function create($filename)
 	{
-		return new self($module, $name);
+		return new self($filename);
 	}
 }
