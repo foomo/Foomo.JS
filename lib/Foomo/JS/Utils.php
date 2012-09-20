@@ -115,7 +115,7 @@ class Utils
 			if(!empty($resolvedFilename)) {
 				$imports[] = $resolvedFilename;
 			} else {
-				trigger_error('can not resolve import in ' . $filename . ' to ' . $rawImport . ' from statement ' . $statement);
+				trigger_error('can not resolve import in ' . $filename . ' to ' . $rawImport);
 			}
 		}
 
