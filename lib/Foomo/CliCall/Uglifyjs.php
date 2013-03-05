@@ -59,10 +59,12 @@ class Uglifyjs extends \Foomo\CliCall
 	 * create a call
 	 *
 	 * @param string $source
+	 *
 	 * @return \Foomo\CliCall\Uglifyjs
 	 */
-	public static function create($source)
+	public static function create()
 	{
+		$source = func_get_arg(0);
 		return new self($source);
 	}
 }
