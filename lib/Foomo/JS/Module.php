@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\JS;
+use Foomo\Modules\MakeResult;
 
 /**
  * @link www.foomo.org
@@ -49,7 +50,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	/**
 	 * get all the module resources
 	 *
-	 * @return Foomo\Modules\Resource[]
+	 * @return \Foomo\Modules\Resource[]
 	 */
 	public static function getResources()
 	{
@@ -58,4 +59,24 @@ class Module extends \Foomo\Modules\ModuleBase
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
 		);
 	}
+	public static function make($target, MakeResult $result)
+	{
+		switch($target) {
+			case 'clean':
+				$result->addEntry('cleaning js files in ' . self::getHtdocsVarDir());
+				foreach(new \DirectoryIterator(self::getHtdocsVarDir()) as $fileInfo) {
+					if($fileInfo->isFile() && substr($fileInfo->getFilename(), -3) == '.js') {
+						if(unlink($fileInfo->getPathname())) {
+							$result->addEntry('removed ' . $fileInfo->getFilename());
+						} else {
+							$result->addEntry('could not remove ' . $fileInfo->getFilename(), MakeResult\Entry::LEVEL_ERROR, false);
+						}
+					}
+				}
+				break;
+			default:
+				parent::make($target, $result);
+		}
+	}
+
 }
