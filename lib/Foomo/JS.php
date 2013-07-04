@@ -88,7 +88,7 @@ class JS
 	 */
 	public function getOutputPath()
 	{
-		return \Foomo\JS\Module::getHtdocsVarPath() . DIRECTORY_SEPARATOR . $this->getOutputBasename();
+		return \Foomo\JS\Module::getHtdocsVarBuildPath() . DIRECTORY_SEPARATOR . $this->getOutputBasename();
 	}
 
 	/**
