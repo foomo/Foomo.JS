@@ -172,7 +172,7 @@ class Utils
 	 * @param string $filename
 	 * @return string
 	 */
-	private function concatImports($filename)
+	private static function concatImports($filename)
 	{
 		$script = \file_get_contents($filename);
 		$matches = self::pregMatch($script);
