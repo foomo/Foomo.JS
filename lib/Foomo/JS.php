@@ -41,7 +41,10 @@ class JS
 	 * @var boolean
 	 */
 	private $compress = false;
-
+	/**
+	 * @var string
+	 */
+	private $name;
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
@@ -58,7 +61,15 @@ class JS
 	//---------------------------------------------------------------------------------------------
 	// ~ Public methods
 	//---------------------------------------------------------------------------------------------
-
+	/**
+	 * @param string $name
+	 * @return $this
+	 */
+	public function name($name)
+	{
+		$this->name = $name;
+		return $this;
+	}
 	/**
 	 * @return boolean
 	 */
@@ -114,7 +125,12 @@ class JS
 	{
 		$basename = \md5($this->filename);
 		if ($this->compress) $basename .= '.min';
-		return  $basename . '.js';
+		$basename .= '.js';
+		if(empty($this->name)) {
+			return  $basename ;
+		} else {
+			return $this->name . '-' . $basename;
+		}
 	}
 
 	/**
