@@ -31,7 +31,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	//---------------------------------------------------------------------------------------------
 
 	const NAME		= 'Foomo.JS';
-	const VERSION	= '1.1.0';
+	const VERSION	= '1.1.1';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -55,7 +55,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	public static function getResources()
 	{
 		return array(
-			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.0'),
+			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
 		);
 	}
