@@ -129,8 +129,10 @@ class Utils
 	private static function pregMatch($string)
 	{
 		$matches = array();
-		\preg_match_all('/^@include\(["\'](.*?)["\']\)/im', $string, $matches);
-		return $matches;
+		//\preg_match_all('/^@include\(["\'](.*?)["\']\)/im', $string, $matches);
+		//return $matches;
+		\preg_match_all('/^\s*@include\s*\(\s*(["\'])(.*?)\1\s*\)/im', $string, $matches);
+		return array($matches[0], $matches[2]);
 	}
 
 	/**
