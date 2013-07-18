@@ -152,11 +152,7 @@ class JS
 		$this->compress = $compress;
 		return $this;
 	}
-
-	/**
-	 * @return \Foomo\JS
-	 */
-	public function compile()
+	private function needsCompilation()
 	{
 		$source = $this->getFilename();
 		$output = $this->getOutputFilename();
@@ -168,10 +164,23 @@ class JS
 			$cmd = \Foomo\CliCall\Find::create($deps)->type('f')->newer($output)->execute();
 			if (!empty($cmd->stdOut)) $compile = true;
 		}
-
-		if ($compile) {
+		return $compile;
+	}
+	/**
+	 * @return \Foomo\JS
+	 */
+	public function compile()
+	{
+		$output = $this->getOutputFilename();
+		if (
+			$this->needsCompilation() &&
+			Lock::lock($lockName = 'jsCompile-'. basename($output)) &&
+			$this->needsCompilation()
+		) {
+			$source = $this->getFilename();
 			$success = \Foomo\JS\Utils::compile($source, $output);
 			if ($success && $this->compress) \Foomo\JS\Utils::uglify($output, $output);
+			Lock::release($lockName);
 		}
 
 		return $this;
