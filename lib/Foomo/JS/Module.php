@@ -59,20 +59,25 @@ class Module extends \Foomo\Modules\ModuleBase
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
 		);
 	}
+	private static function cleanDir($dir, MakeResult $result)
+	{
+		$result->addEntry('cleaning js files in ' . $dir);
+		foreach(new \DirectoryIterator($dir) as $fileInfo) {
+			if($fileInfo->isFile() && substr($fileInfo->getFilename(), -3) == '.js') {
+				if(unlink($fileInfo->getPathname())) {
+					$result->addEntry('removed ' . $fileInfo->getFilename());
+				} else {
+					$result->addEntry('could not remove ' . $fileInfo->getFilename(), MakeResult\Entry::LEVEL_ERROR, false);
+				}
+			}
+		}
+	}
 	public static function make($target, MakeResult $result)
 	{
 		switch($target) {
 			case 'clean':
-				$result->addEntry('cleaning js files in ' . self::getHtdocsVarDir());
-				foreach(new \DirectoryIterator(self::getHtdocsVarDir()) as $fileInfo) {
-					if($fileInfo->isFile() && substr($fileInfo->getFilename(), -3) == '.js') {
-						if(unlink($fileInfo->getPathname())) {
-							$result->addEntry('removed ' . $fileInfo->getFilename());
-						} else {
-							$result->addEntry('could not remove ' . $fileInfo->getFilename(), MakeResult\Entry::LEVEL_ERROR, false);
-						}
-					}
-				}
+				self::cleanDir(self::getHtdocsVarDir(), $result);
+				self::cleanDir(self::getVarDir(), $result);
 				break;
 			default:
 				parent::make($target, $result);

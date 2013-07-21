@@ -55,7 +55,7 @@ class JS
 	public function __construct($filenameOrFilenames)
 	{
 		if(is_array($filenameOrFilenames)) {
-			$filename = JS\Module::getVarDir()  . DIRECTORY_SEPARATOR . 'merged-' . md5(implode('-', $filenameOrFilenames));
+			$filename = JS\Module::getVarDir()  . DIRECTORY_SEPARATOR . 'merged-' . md5(implode('-', $filenameOrFilenames)) . '.js';
 			if(!file_exists($filename)) {
 				self::mergeFiles($filenameOrFilenames, $filename);
 			}
