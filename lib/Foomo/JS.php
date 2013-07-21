@@ -52,12 +52,37 @@ class JS
 	/**
 	 * @param string $filename
 	 */
-	public function __construct($filename)
+	public function __construct($filenameOrFilenames)
 	{
+		if(is_array($filenameOrFilenames)) {
+			$filename = JS\Module::getVarDir()  . DIRECTORY_SEPARATOR . 'merged-' . md5(implode('-', $filenameOrFilenames));
+			if(!file_exists($filename)) {
+				self::mergeFiles($filenameOrFilenames, $filename);
+			}
+		} else {
+			$filename = self::validateFileExists($filenameOrFilenames);
+		}
 		$this->filename = $filename;
-		if (!\file_exists($this->filename)) \trigger_error ('Source does not exist: ' . $this->filename, \E_USER_ERROR);
 	}
-
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+	private static function validateFileExists($filename)
+	{
+		if (!file_exists($filename)) {
+			trigger_error ('Source does not exist: ' . $filename, E_USER_ERROR);
+		} else {
+			return $filename;
+		}
+	}
+	private static function mergeFiles(array $files, $targetFile)
+	{
+		$js = '// auto generated - do not edit' . PHP_EOL;
+		foreach($files as $file) {
+			$js .= '@include("' . addslashes($file) . '");' . PHP_EOL;
+		}
+		file_put_contents($targetFile, $js);
+	}
 	//---------------------------------------------------------------------------------------------
 	// ~ Public methods
 	//---------------------------------------------------------------------------------------------
@@ -191,11 +216,12 @@ class JS
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $filename Path to the js file
+	 * @param string|array $filenameOrFilenames Path to the js file
+	 *
 	 * @return \Foomo\JS
 	 */
-	public static function create($filename)
+	public static function create($filenameOrFilenames)
 	{
-		return new self($filename);
+		return new self($filenameOrFilenames);
 	}
 }
