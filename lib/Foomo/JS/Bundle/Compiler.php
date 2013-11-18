@@ -37,50 +37,74 @@ class Compiler
 	{
 		$dependencies = Dependency\Manager::getSortedDependencies($bundle);
 		$dependencies[] = new Dependency($bundle, Dependency::TYPE_LINK);
-		foreach($dependencies as $dependency) {
+		foreach ($dependencies as $dependency) {
 			$dependency->compile();
 		}
-		$result = new Compiler\Result();
-		self::link(end($dependencies), $result, $bundle->debug);
-		if(!$bundle->debug) {
-			for($i = 0;$i < count($result->jsFiles); $i ++) {
-				$jsFiles = $result->jsFiles[$i];
-				if(is_array($jsFiles)) {
-					$name = 'merge-' . md5(implode('-', $jsFiles));
-					$basename =  $name . '.js';
-					$filename = \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $basename;
-					if(!file_exists($filename)) {
-						$jsCompiler = JS::create($jsFiles)
-							->name($name)
-							->compress()
-							->compile()
-						;
-						rename($jsCompiler->getOutputFilename(), $filename);
-					}
-					$result->jsFiles[$i] = $filename;
-					$result->jsLinks[$i] = array(\Foomo\JS\Module::getHtdocsVarBuildPath($basename));
+		$topLevel = end($dependencies);
+		self::build($topLevel, $bundle->debug);
+
+		// if something is to be merged, do it now
+		for ($i = 0; $i < count($topLevel->result->jsFiles); $i++) {
+			$jsFiles = $topLevel->result->jsFiles[$i];
+			if (is_array($jsFiles)) {
+				$name = 'merge-' . md5(implode('-', $jsFiles));
+				$basename =  $name . '.min.js';
+				$filename = \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $basename;
+				if (!file_exists($filename)) {
+					$jsCompiler = JS::create($jsFiles)
+						->name($name)
+						->compress()
+						->compile()
+					;
+					rename($jsCompiler->getOutputFilename(), $filename);
 				}
+				$topLevel->result->jsFiles[$i] = $filename;
+				$topLevel->result->jsLinks[$i] = \Foomo\JS\Module::getHtdocsVarBuildPath($basename);
+			} else {
+				$topLevel->result->jsLinks[$i] = \Foomo\JS\Module::getHtdocsVarBuildPath(basename($jsFiles));
 			}
 		}
-		return $result;
-	}
-	public static function runCompiler(AbstractBundle $bundle)
-	{
-
+		return $topLevel->result;
 	}
 
-	public static function link(Dependency $dependency, JS\Bundle\Compiler\Result $result, $debug)
+	public static function build(Dependency $dependency, $debug)
 	{
-		foreach($dependency->bundle->dependencies as $parentDependency) {
-			self::link($parentDependency, $result, $debug);
+		foreach ($dependency->bundle->dependencies as $parentDependency) {
+			self::build($parentDependency, $debug);
+			if ($parentDependency->type == Dependency::TYPE_MERGE && !$debug) {
+				$merged = self::flattenArray($parentDependency->result->jsFiles);
+				array_pop($dependency->result->jsLinks);                // remove the link as well
+				$lastItem = array_pop($dependency->result->jsFiles);
+				if (is_array($lastItem)) {
+					$lastJs = array_pop($lastItem);
+					$merged = array_merge($merged, $lastItem);
+					$merged[] = $lastJs;
+				} else {
+					$merged[] = $lastItem;
+				}
+				$dependency->result->jsFiles[] = $merged;
+			} else {
+				// link
+				$dependency->result->jsFiles = array_merge($parentDependency->result->jsFiles, $dependency->result->jsFiles);
+				$dependency->result->jsLinks = array_merge($parentDependency->result->jsLinks, $dependency->result->jsLinks);
+			}
 		}
-		if($dependency->type == Dependency::TYPE_MERGE && !$debug) {
-			$result->jsFiles[] = $dependency->result->jsFiles;
-			$result->jsLinks[] = '-- waiting for merge --';
-		} else {
-			// link
-			$result->jsFiles = array_merge($result->jsFiles, $dependency->result->jsFiles);
-			$result->jsLinks = array_merge($result->jsLinks, $dependency->result->jsLinks);
+	}
+
+	/**
+	 * @param mixed[] $a array of arrays
+	 * @return string[]
+	 */
+	private static function flattenArray($a)
+	{
+		$res = array();
+		foreach ($a as $item) {
+			if (is_array($item)) {
+				$res = array_merge($res, self::flattenArray($item));
+			} else {
+				$res[] = $item;
+			}
 		}
+		return $res;
 	}
 }

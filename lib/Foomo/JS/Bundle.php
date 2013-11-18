@@ -33,7 +33,7 @@ class Bundle extends Bundle\AbstractBundle
 
 	/**
 	 * @param string $script
-	 * @return \Foomo\TypeScript\Bundle
+	 * @return Bundle
 	 */
 	public function addJavascript($script)
 	{
@@ -42,7 +42,7 @@ class Bundle extends Bundle\AbstractBundle
 
 	/**
 	 * @param string[] $scripts
-	 * @return \Foomo\TypeScript\Bundle
+	 * @return Bundle
 	 */
 	public function addJavaScripts(array $scripts)
 	{
@@ -51,7 +51,7 @@ class Bundle extends Bundle\AbstractBundle
 
 	/**
 	 * @param bool $debug
-	 * @return \Foomo\TypeScript\Bundle
+	 * @return Bundle
 	 */
 	public function debug($debug)
 	{
@@ -59,15 +59,26 @@ class Bundle extends Bundle\AbstractBundle
 		return $this;
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getJSLinks()
 	{
 		return array($this->jsCompiler->getOutputPath());
 	}
 
+	/**
+	 * @return string[]
+	 */
 	public function getJSFiles()
 	{
 		return array($this->jsCompiler->getOutputFilename());
 	}
+
+	/**
+	 * @param Result $result
+	 * @return Bundle
+	 */
 	public function compile(Result $result)
 	{
 		$jsCompiler = \Foomo\JS::create($this->javaScripts)

@@ -37,16 +37,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 			$actual[] = $dependency->bundle->name;
 		}
 		sort($actual);
-		$this->assertEquals(
-			array(
-				'bar',
-				'foo'
-			),
-			$actual,
-			serialize($actual)
-		);
+		$this->assertEquals(array('bar', 'foo'), $actual, serialize($actual));
 
 	}
+
 	public function testGetSortedDependencies()
 	{
 		$bundleFooBar = MockBundles::fooBar();
@@ -55,11 +49,34 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 			$bundleFooBar->dependencies['bar']
 		);
 		$actual = Manager::getSortedDependencies($bundleFooBar);
-		$this->assertEquals(
-			$expected,
-			$actual
-		);
+		$this->assertEquals($expected, $actual);
 	}
+
+	public function testGetSortedDependenciesFull()
+	{
+		$bundleFull = MockBundles::full();
+
+		$result = Manager::getSortedDependencies($bundleFull);
+
+		$actual = array();
+		$i = 0;
+		foreach ($result as $dependency) {
+			$actual[$dependency->bundle->name] = $i++;
+		}
+
+		// the actual order is not guaranteed, therefore check the order for the known dependencies
+		$rules = array(
+			'm2' => array('m1'),
+			'm3' => array('m1', 'm2'),
+			'n12' => array('n1', 'n2'),
+		);
+		foreach ($rules as $y => $deps) {
+			foreach ($deps as $x) {
+				$this->assertTrue($actual[$x] < $actual[$y], "bundle $x should come before bundle $y because $y depends upon $x");
+			}
+		}
+	}
+
 	public function testGetDependenciesSatisfiedByDependencies()
 	{
 		$bundleFoo = MockBundles::foo();
@@ -70,30 +87,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 			$dependencyBar = new Dependency($bundleBar, Dependency::TYPE_LINK)
 		);
 
-		$dependencies = array();
+		$dependencies = Manager::getDependenciesSatisfiedByDependencies(array(), $allDeps);
+
+		$expected = array($dependencyFoo);
+		$this->assertEquals($expected, $dependencies);
 
 		$dependencies = Manager::getDependenciesSatisfiedByDependencies($dependencies, $allDeps);
 
-		$expected = array(
-			$dependencyFoo
-		);
-
-		$this->assertEquals(
-			$expected,
-			$dependencies
-		);
-
-		$dependencies = Manager::getDependenciesSatisfiedByDependencies($dependencies, $allDeps);
-
-		$expected = array(
-			$dependencyFoo,
-			$dependencyBar
-		);
-
-		$this->assertEquals(
-			$expected,
-			$dependencies
-		);
+		$expected = array($dependencyFoo, $dependencyBar);
+		$this->assertEquals($expected, $dependencies);
 
 	}
 

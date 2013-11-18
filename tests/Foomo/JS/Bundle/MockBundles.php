@@ -26,7 +26,7 @@ use Foomo\JS\Bundle as JSBundle;
  */
 class MockBundles
 {
-	private static function getScript($name)
+	public static function getScript($name)
 	{
 		return __DIR__ . DIRECTORY_SEPARATOR . 'mock' . DIRECTORY_SEPARATOR . $name . '.js';
 	}
@@ -48,7 +48,7 @@ class MockBundles
 	}
 	public static function barMerged()
 	{
-		return JSBundle::create('bar')
+		return JSBundle::create('barMerged')
 			->debug(true)
 			->addJavascript(self::getScript('bar'))
 			->merge(self::foo())
@@ -63,4 +63,56 @@ class MockBundles
 			->addDependency(self::bar())
 		;
 	}
+
+	public static function m1()
+	{
+		return JSBundle::create('m1')
+			->addJavascript(self::getScript('m/m1'))
+		;
+	}
+
+	public static function m2()
+	{
+		return JSBundle::create('m2')
+			->addJavascript(self::getScript('m/m2'))
+			->merge(self::m1())
+		;
+	}
+
+	public static function m3()
+	{
+		return JSBundle::create('m3')
+			->addJavascript(self::getScript('m/m3'))
+			->merge(self::m2())
+		;
+	}
+
+	public static function n1()
+	{
+		return JSBundle::create('n1')->addJavascript(self::getScript('n/n1'));
+	}
+
+	public static function n2()
+	{
+		return JSBundle::create('n2')->addJavascript(self::getScript('n/n2'));
+	}
+
+	public static function n12()
+	{
+		return JSBundle::create('n12')
+			->addJavascript(self::getScript('n/n12'))
+			->merge(self::n1())
+			->merge(self::n2())
+		;
+	}
+
+	public static function full()
+	{
+		return JSBundle::create('full')
+			->addJavascript(self::getScript('full'))
+			->addDependency(self::m3())
+			->addDependency(self::n12())
+		;
+	}
 }
+

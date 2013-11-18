@@ -1,3 +1,3 @@
-var m3 = "merged.3" + m2;
+var full = "full" + m3 + n12;
 
-console.log(m3);
+console.log(full);
