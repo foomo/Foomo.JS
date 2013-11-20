@@ -21,6 +21,7 @@ namespace Foomo\JS\Bundle;
 
 use AbstractBundle as Bundle;
 use Foomo\JS;
+use Foomo\Timer;
 
 /**
  * @link www.foomo.org
@@ -38,16 +39,19 @@ class Compiler
 		$dependencies = Dependency\Manager::getSortedDependencies($bundle);
 		$dependencies[] = new Dependency($bundle, Dependency::TYPE_LINK);
 		foreach ($dependencies as $dependency) {
+			Timer::start($timerAction = 'compile ' . $dependency->bundle->name);
 			$dependency->compile();
+			Timer::stop($timerAction);
 		}
 		$topLevel = end($dependencies);
 		self::build($topLevel, $bundle->debug);
 
-		// if something is to be merged, do it now
+		// if something has to be merged, do it now
 		for ($i = 0; $i < count($topLevel->result->jsFiles); $i++) {
 			$jsFiles = $topLevel->result->jsFiles[$i];
 			if (is_array($jsFiles)) {
 				$name = 'merge-' . md5(implode('-', $jsFiles));
+				var_dump($name);
 				$basename =  $name . '.min.js';
 				$filename = \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $basename;
 				if (!file_exists($filename)) {
@@ -56,12 +60,20 @@ class Compiler
 						->compress()
 						->compile()
 					;
-					rename($jsCompiler->getOutputFilename(), $filename);
+					//rename($jsCompiler->getOutputFilename(), $filename);
+					$oldContents = '';
+					if(file_exists($filename)) {
+						$oldContents = file_get_contents($filename);
+					}
+					$newContents = file_get_contents($jsCompiler->getOutputFilename());
+					if($oldContents != $newContents) {
+						file_put_contents($filename, $newContents);
+					}
 				}
 				$topLevel->result->jsFiles[$i] = $filename;
 				$topLevel->result->jsLinks[$i] = \Foomo\JS\Module::getHtdocsVarBuildPath($basename);
 			} else {
-				$topLevel->result->jsLinks[$i] = \Foomo\JS\Module::getHtdocsVarBuildPath(basename($jsFiles));
+				$topLevel->result->jsLinks[$i] = $topLevel->result->jsLinks[$i];//$jsFiles;//\Foomo\JS\Module::getHtdocsVarBuildPath(basename($jsFiles));
 			}
 		}
 		return $topLevel->result;
