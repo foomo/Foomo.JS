@@ -37,7 +37,6 @@ class Utils
 	 */
 	public static function compile($source, $destination)
 	{
-		$ret = true;
 		$pwd = \getcwd();
 
 		# cd to the modules dir
