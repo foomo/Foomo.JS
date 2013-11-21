@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\JS;
+use Foomo\Cache\Invalidator;
 use Foomo\Modules\MakeResult;
 
 /**
@@ -78,10 +79,11 @@ class Module extends \Foomo\Modules\ModuleBase
 			case 'clean':
 				self::cleanDir(self::getHtdocsVarDir(), $result);
 				self::cleanDir(self::getVarDir(), $result);
+				$result->addEntry('deleting bundle cache');
+				\Foomo\Cache\Manager::invalidateWithQuery('Foomo\\JS\\Bundle\\Compiler::cachedCompileBundleUsingProvider', null, true, Invalidator::POLICY_DELETE);
 				break;
 			default:
 				parent::make($target, $result);
 		}
 	}
-
 }

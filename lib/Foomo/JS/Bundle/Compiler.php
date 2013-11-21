@@ -42,10 +42,10 @@ class Compiler
 		if(is_null($debug)) {
 			$debug = !Config::isProductionMode();
 		}
-		if(!$debug) {
-			return Proxy::call(__CLASS__, 'cachedCompileBundle', array($bundleProvider, $bundleProviderArguments));
-		} else {
+		if($debug) {
 			return self::compileBundleUsingProvider($bundleProvider, $bundleProviderArguments);
+		} else {
+			return Proxy::call(__CLASS__, 'cachedCompileBundleUsingProvider', array($bundleProvider, $bundleProviderArguments));
 		}
 	}
 	/**
@@ -107,7 +107,7 @@ class Compiler
 		for ($i = 0; $i < count($topLevel->result->jsFiles); $i++) {
 			$jsFiles = $topLevel->result->jsFiles[$i];
 			if (is_array($jsFiles)) {
-				$name = 'merge-' . md5(implode('-', $jsFiles));
+				$name = 'merged-' . $topLevel->result->jsLinks[$i] . '-' . md5(implode('-', $jsFiles));
 				$basename =  $name . '.min.js';
 				$filename = \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $basename;
 				if (!file_exists($filename)) {
@@ -151,6 +151,7 @@ class Compiler
 					$merged[] = $lastItem;
 				}
 				$dependency->result->jsFiles[] = $merged;
+				$dependency->result->jsLinks[] = $dependency->bundle->name;
 			} else {
 				// link
 				$dependency->result->jsFiles = array_merge($parentDependency->result->jsFiles, $dependency->result->jsFiles);
