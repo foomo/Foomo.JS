@@ -20,8 +20,10 @@
 namespace Foomo\JS\Bundle;
 
 use AbstractBundle as Bundle;
+use Foomo\Cache\Proxy;
+use Foomo\Config;
+use Foomo\HTMLDocument;
 use Foomo\JS;
-use Foomo\Timer;
 
 /**
  * @link www.foomo.org
@@ -29,6 +31,61 @@ use Foomo\Timer;
  */
 class Compiler
 {
+	/**
+	 * @param mixed $bundleProvider
+	 * @param array $bundleProviderArguments
+	 * @param bool $debug
+	 * @return Compiler\Result|mixed
+	 */
+	public static function compileAndCache($bundleProvider, array $bundleProviderArguments = array(), $debug = null)
+	{
+		if(is_null($debug)) {
+			$debug = !Config::isProductionMode();
+		}
+		if(!$debug) {
+			return Proxy::call(__CLASS__, 'cachedCompileBundle', array($bundleProvider, $bundleProviderArguments));
+		} else {
+			return self::compileBundleUsingProvider($bundleProvider, $bundleProviderArguments);
+		}
+	}
+	/**
+	 * @param string $bundleProvider string class::method
+	 * @param array $bundleProviderArguments
+	 * @param HTMLDocument $doc
+	 * @param bool $debug
+	 * @throws \InvalidArgument
+	 */
+	public static function addBundleToDoc($bundleProvider, array $bundleProviderArguments = array(), HTMLDocument $doc = null, $debug = null)
+	{
+		if(is_null($doc)) {
+			$doc = HTMLDocument::getInstance();
+		}
+		$doc->addJavascriptsToBody(self::compileAndCache($bundleProvider, $bundleProviderArguments, $debug)->jsLinks);
+	}
+
+	/**
+	 * @param string $bundleProvider
+	 * @param array $bundleProviderArguments
+	 *
+	 * @return Compiler\Result
+	 *
+	 * @Foomo\Cache\CacheResourceDescription
+	 */
+	public static function cachedCompileBundleUsingProvider($bundleProvider, array $bundleProviderArguments = array())
+	{
+		return self::compileBundleUsingProvider($bundleProvider, $bundleProviderArguments);
+	}
+
+	/**
+	 * @param string $bundleProvider
+	 * @param array $bundleProviderArguments
+	 *
+	 * @return Compiler\Result
+	 */
+	private static function compileBundleUsingProvider($bundleProvider, array $bundleProviderArguments = array())
+	{
+		return self::compile(call_user_func_array(explode('::', $bundleProvider), $bundleProviderArguments));
+	}
 	/**
 	 * @param AbstractBundle $bundle
 	 *
@@ -39,9 +96,9 @@ class Compiler
 		$dependencies = Dependency\Manager::getSortedDependencies($bundle);
 		$dependencies[] = new Dependency($bundle, Dependency::TYPE_LINK);
 		foreach ($dependencies as $dependency) {
-			Timer::start($timerAction = 'compile ' . $dependency->bundle->name);
+			//Timer::start($timerAction = 'compile ' . $dependency->bundle->name);
 			$dependency->compile();
-			Timer::stop($timerAction);
+			//Timer::stop($timerAction);
 		}
 		$topLevel = end($dependencies);
 		self::build($topLevel, $bundle->debug);
@@ -51,7 +108,6 @@ class Compiler
 			$jsFiles = $topLevel->result->jsFiles[$i];
 			if (is_array($jsFiles)) {
 				$name = 'merge-' . md5(implode('-', $jsFiles));
-				var_dump($name);
 				$basename =  $name . '.min.js';
 				$filename = \Foomo\JS\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . $basename;
 				if (!file_exists($filename)) {
