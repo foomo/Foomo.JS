@@ -128,7 +128,10 @@ abstract class AbstractBundle
 	 */
 	public function addDependencies(array $bundles)
 	{
-		return $this->addEntriesToPropArray($bundles, 'dependencies');
+		foreach($bundles as $bundle) {
+			$this->addDependency($bundle);
+		}
+		return $this;
 	}
 
 	/**

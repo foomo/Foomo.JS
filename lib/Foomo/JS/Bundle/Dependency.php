@@ -50,9 +50,10 @@ class Dependency
 	{
 		$this->bundle = $bundle;
 		$this->type = $type;
+		$this->result = new Result();
 	}
 	public function compile()
 	{
-		$this->bundle->compile($this->result = new Result());
+		$this->bundle->compile($this->result);
 	}
 }
