@@ -52,16 +52,6 @@ class Bundle extends \Foomo\Bundle\AbstractBundle
 	}
 
 	/**
-	 * @param bool $debug
-	 * @return Bundle
-	 */
-	public function debug($debug)
-	{
-		$this->debug = $debug;
-		return $this;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getJSLinks()
@@ -110,7 +100,7 @@ class Bundle extends \Foomo\Bundle\AbstractBundle
 				->compile()
 				->getOutputFilename()
 		);
-		unlink($filename);
+		// unlink($filename);
 		return $ret;
 	}
 
