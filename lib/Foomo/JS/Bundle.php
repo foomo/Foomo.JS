@@ -17,14 +17,16 @@
  */
 
 namespace Foomo\JS;
-use Foomo\JS\Bundle\Compiler\Result;
+
+use Foomo\Bundle\Compiler\Result;
+use Foomo\JS;
 
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar <jan@bestbytes.com>
  */
-class Bundle extends Bundle\AbstractBundle
+class Bundle extends \Foomo\Bundle\AbstractBundle
 {
 	/**
 	 * @var string[]
@@ -86,8 +88,9 @@ class Bundle extends Bundle\AbstractBundle
 			->name($this->name)
 			->compile()
 		;
-		$result->jsFiles[] = $jsCompiler->getOutputFilename();
-		$result->jsLinks[] = $jsCompiler->getOutputPath();
+		$result->mimeType = Result::MIME_TYPE_JS;
+		$result->files[] = $jsCompiler->getOutputFilename();
+		$result->links[] = $jsCompiler->getOutputPath();
 		return $this;
 	}
 
@@ -99,4 +102,16 @@ class Bundle extends Bundle\AbstractBundle
 	{
 		return parent::create($name);
 	}
+	public static function mergeFiles(array $files, $debug)
+	{
+		$ret = file_get_contents(
+			$filename = JS::create($files)
+				->compress(!$debug)
+				->compile()
+				->getOutputFilename()
+		);
+		unlink($filename);
+		return $ret;
+	}
+
 }

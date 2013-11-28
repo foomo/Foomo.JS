@@ -16,11 +16,11 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\JS\Bundle\Dependency;
+namespace Foomo\Bundle\Dependency;
 
-use Foomo\JS\Bundle\AbstractBundle;
-use Foomo\JS\Bundle\Dependency;
-use Foomo\JS\Bundle\MockBundles;
+use Foomo\Bundle\AbstractBundle;
+use Foomo\Bundle\Dependency;
+use Foomo\Bundle\MockBundles;
 
 /**
  * @link www.foomo.org

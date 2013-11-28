@@ -17,7 +17,7 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\JS\Bundle;
+namespace Foomo\Bundle;
 
 use AbstractBundle as Bundle;
 use Foomo\CliCall;
@@ -39,19 +39,19 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 	public function testCompileSimpleNoDeps()
 	{
 		$result = Compiler::compile(MockBundles::foo());
-		$this->assertInstanceOf('Foomo\\JS\\Bundle\\Compiler\\Result', $result);
-		$this->assertCount(1, $result->jsFiles);
-		$this->assertCount(1, $result->jsLinks);
+		$this->assertInstanceOf('Foomo\\Bundle\\Compiler\\Result', $result);
+		$this->assertCount(1, $result->files);
+		$this->assertCount(1, $result->links);
 	}
 
 	public function testCompileDeps()
 	{
 		$result = Compiler::compile(MockBundles::bar());
-		$this->assertCount(2, $result->jsFiles);
-		$this->assertCount(2, $result->jsLinks);
+		$this->assertCount(2, $result->files);
+		$this->assertCount(2, $result->links);
 		$expected = array('foo', 'bar');
 		$actual = array();
-		foreach ($result->jsFiles as $jsFile) {
+		foreach ($result->files as $jsFile) {
 			$actual[] = substr(basename($jsFile), 0, 3);
 		}
 		$this->assertEquals($expected, $actual);
@@ -60,9 +60,9 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 	public function testCompileDepsProd()
 	{
 		$result = Compiler::compile(MockBundles::barMerged()->debug(false));
-		$this->assertCount(1, $result->jsFiles);
-		$this->assertCount(1, $result->jsLinks);
-		$jsResult = self::runJs($result->jsFiles[0]);
+		$this->assertCount(1, $result->files);
+		$this->assertCount(1, $result->links);
+		$jsResult = self::runJs($result->files[0]);
 		$expected = 'foo barfoo';
 		$this->assertEquals($expected, $jsResult, "failed, '$expected' != '$jsResult'");
 	}
@@ -70,30 +70,30 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 	public function testFullDev()
 	{
 		$result = Compiler::compile(MockBundles::full()->debug(true));
-		$this->assertCount(7, $result->jsFiles);
-		$this->assertCount(7, $result->jsLinks);
+		$this->assertCount(7, $result->files);
+		$this->assertCount(7, $result->links);
 		// some empty results expected since top level js files cannot be executed standalone without including the others
 		foreach (array('n2', 'n1', '', 'm1', '', '', '') as $i => $expected) {
-			$jsResult = self::runJs($result->jsFiles[$i]);
+			$jsResult = self::runJs($result->files[$i]);
 			$this->assertEquals($expected, $jsResult, "failed, '$expected' != '$jsResult'");
 		}
 		$expected = 'n2 n1 n12n1n2 m1 m2m1 m3m2m1 fullm3m2m1n12n1n2';
-		$jsResult = self::runJs($result->jsFiles);
+		$jsResult = self::runJs($result->files);
 		$this->assertEquals($expected, $jsResult, "'$expected' != '$jsResult'");
 	}
 
 	public function testFullProd()
 	{
 		$result = Compiler::compile(MockBundles::full()->debug(false));
-		$this->assertCount(3, $result->jsFiles);
-		$this->assertCount(3, $result->jsLinks);
+		$this->assertCount(3, $result->files);
+		$this->assertCount(3, $result->links);
 		// empty result expected since top level js file cannot be executed standalone without including the others
 		foreach (array('n2 n1 n12n1n2', 'm1 m2m1 m3m2m1', '') as $i => $expected) {
-			$jsResult = self::runJs($result->jsFiles[$i]);
+			$jsResult = self::runJs($result->files[$i]);
 			$this->assertEquals($expected, $jsResult, "failed, '$expected' != '$jsResult'");
 		}
 		$expected = 'n2 n1 n12n1n2 m1 m2m1 m3m2m1 fullm3m2m1n12n1n2';
-		$jsResult = self::runJs($result->jsFiles);
+		$jsResult = self::runJs($result->files);
 		$this->assertEquals($expected, $jsResult, "'$expected' != '$jsResult'");
 	}
 
@@ -106,15 +106,15 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 		;
 
 		$result = Compiler::compile($linkedFull);
-		$this->assertCount(4, $result->jsFiles);
-		$this->assertCount(4, $result->jsLinks);
+		$this->assertCount(4, $result->files);
+		$this->assertCount(4, $result->links);
 		// empty result expected since top level js file cannot be executed standalone without including the others
 		foreach (array('n2 n1 n12n1n2', 'm1 m2m1 m3m2m1', '') as $i => $expected) {
-			$jsResult = self::runJs($result->jsFiles[$i]);
+			$jsResult = self::runJs($result->files[$i]);
 			$this->assertEquals($expected, $jsResult, "failed, '$expected' != '$jsResult'");
 		}
 		$expected = 'n2 n1 n12n1n2 m1 m2m1 m3m2m1 fullm3m2m1n12n1n2 foo';
-		$jsResult = self::runJs($result->jsFiles);
+		$jsResult = self::runJs($result->files);
 		$this->assertEquals($expected, $jsResult, "'$expected' != '$jsResult'");
 	}
 
@@ -127,10 +127,10 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 		;
 
 		$result = Compiler::compile($mergedFull);
-		$this->assertCount(1, $result->jsFiles);
-		$this->assertCount(1, $result->jsLinks);
+		$this->assertCount(1, $result->files);
+		$this->assertCount(1, $result->links);
 		$expected = 'n2 n1 n12n1n2 m1 m2m1 m3m2m1 fullm3m2m1n12n1n2 foo';
-		$jsResult = self::runJs($result->jsFiles);
+		$jsResult = self::runJs($result->files);
 		$this->assertEquals($expected, $jsResult, "'$expected' != '$jsResult'");
 	}
 

@@ -57,6 +57,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	{
 		return array(
 			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
+			\Foomo\Modules\Resource\Module::getResource('Foomo.Bundle', '0.1.*'),
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
 		);
 	}
@@ -79,8 +80,6 @@ class Module extends \Foomo\Modules\ModuleBase
 			case 'clean':
 				self::cleanDir(self::getHtdocsVarDir(), $result);
 				self::cleanDir(self::getVarDir(), $result);
-				$result->addEntry('deleting bundle cache');
-				\Foomo\Cache\Manager::invalidateWithQuery('Foomo\\JS\\Bundle\\Compiler::cachedCompileBundleUsingProvider', null, true, Invalidator::POLICY_DELETE);
 				break;
 			default:
 				parent::make($target, $result);

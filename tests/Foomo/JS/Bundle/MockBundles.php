@@ -16,7 +16,7 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\JS\Bundle;
+namespace Foomo\Bundle;
 
 use Foomo\JS\Bundle as JSBundle;
 /**
