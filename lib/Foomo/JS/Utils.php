@@ -180,8 +180,12 @@ class Utils
 
 		for ($i=0; $i<count($matches[0]); $i++) {
 			$importFilename = self::resolveFilename($filename, $matches[1][$i]);
-			$importScript = self::concatImports($importFilename);
-			$script = \str_replace($matches[0][$i], $importScript, $script);
+			if(is_null($importFilename)) {
+				trigger_error('invalid import : ' . $matches[1][$i] . ' in ' . $filename, E_USER_WARNING);
+			} else {
+				$importScript = self::concatImports($importFilename);
+				$script = \str_replace($matches[0][$i], $importScript, $script);
+			}
 		}
 
 		return $script;

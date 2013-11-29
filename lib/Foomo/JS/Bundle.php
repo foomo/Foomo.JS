@@ -75,12 +75,15 @@ class Bundle extends \Foomo\Bundle\AbstractBundle
 	{
 		$jsCompiler = \Foomo\JS::create($this->javaScripts)
 			->compress(!$this->debug)
+			->watch($this->debug)
 			->name($this->name)
 			->compile()
 		;
-		$result->mimeType = Result::MIME_TYPE_JS;
-		$result->files[] = $jsCompiler->getOutputFilename();
-		$result->links[] = $jsCompiler->getOutputPath();
+		$result->resources[] = Result\Resource::create(
+			Result\Resource::MIME_TYPE_JS,
+			$jsCompiler->getOutputFilename(),
+			$jsCompiler->getOutputPath()
+		);
 		return $this;
 	}
 
@@ -91,6 +94,10 @@ class Bundle extends \Foomo\Bundle\AbstractBundle
 	public static function create($name)
 	{
 		return parent::create($name);
+	}
+	public static function canMerge($mimeType)
+	{
+		return $mimeType == Result\Resource::MIME_TYPE_JS;
 	}
 	public static function mergeFiles(array $files, $debug)
 	{

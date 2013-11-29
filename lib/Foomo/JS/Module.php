@@ -61,25 +61,14 @@ class Module extends \Foomo\Modules\ModuleBase
 			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
 		);
 	}
-	private static function cleanDir($dir, MakeResult $result)
-	{
-		$result->addEntry('cleaning js files in ' . $dir);
-		foreach(new \DirectoryIterator($dir) as $fileInfo) {
-			if($fileInfo->isFile() && substr($fileInfo->getFilename(), -3) == '.js') {
-				if(unlink($fileInfo->getPathname())) {
-					$result->addEntry('removed ' . $fileInfo->getFilename());
-				} else {
-					$result->addEntry('could not remove ' . $fileInfo->getFilename(), MakeResult\Entry::LEVEL_ERROR, false);
-				}
-			}
-		}
-	}
+
+
 	public static function make($target, MakeResult $result)
 	{
 		switch($target) {
 			case 'clean':
-				self::cleanDir(self::getHtdocsVarDir(), $result);
-				self::cleanDir(self::getVarDir(), $result);
+				\Foomo\Bundle\Module::cleanDir(self::getHtdocsVarDir(), $result);
+				\Foomo\Bundle\Module::cleanDir(self::getVarDir(), $result);
 				break;
 			default:
 				parent::make($target, $result);
