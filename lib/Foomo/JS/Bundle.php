@@ -17,14 +17,16 @@
  */
 
 namespace Foomo\JS;
-use Foomo\JS\Bundle\Compiler\Result;
+
+use Foomo\Bundle\Compiler\Result;
+use Foomo\JS;
 
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar <jan@bestbytes.com>
  */
-class Bundle extends Bundle\AbstractBundle
+class Bundle extends \Foomo\Bundle\AbstractBundle
 {
 	/**
 	 * @var string[]
@@ -47,16 +49,6 @@ class Bundle extends Bundle\AbstractBundle
 	public function addJavaScripts(array $scripts)
 	{
 		return $this->addEntriesToPropArray($scripts, 'javaScripts');
-	}
-
-	/**
-	 * @param bool $debug
-	 * @return Bundle
-	 */
-	public function debug($debug)
-	{
-		$this->debug = $debug;
-		return $this;
 	}
 
 	/**
@@ -83,11 +75,15 @@ class Bundle extends Bundle\AbstractBundle
 	{
 		$jsCompiler = \Foomo\JS::create($this->javaScripts)
 			->compress(!$this->debug)
+			->watch($this->debug)
 			->name($this->name)
 			->compile()
 		;
-		$result->jsFiles[] = $jsCompiler->getOutputFilename();
-		$result->jsLinks[] = $jsCompiler->getOutputPath();
+		$result->resources[] = Result\Resource::create(
+			Result\Resource::MIME_TYPE_JS,
+			$jsCompiler->getOutputFilename(),
+			$jsCompiler->getOutputPath()
+		);
 		return $this;
 	}
 
@@ -99,4 +95,20 @@ class Bundle extends Bundle\AbstractBundle
 	{
 		return parent::create($name);
 	}
+	public static function canMerge($mimeType)
+	{
+		return $mimeType == Result\Resource::MIME_TYPE_JS;
+	}
+	public static function mergeFiles(array $files, $debug)
+	{
+		$ret = file_get_contents(
+			$filename = JS::create($files)
+				->compress(!$debug)
+				->compile()
+				->getOutputFilename()
+		);
+		// unlink($filename);
+		return $ret;
+	}
+
 }
