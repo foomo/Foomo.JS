@@ -32,6 +32,10 @@ class Bundle extends \Foomo\Bundle\AbstractBundle
 	 * @var string[]
 	 */
 	public $javaScripts = array();
+    public function getHash()
+    {
+        return parent::getHash() . sha1(implode(',', $this->javaScripts));
+    }
 
 	/**
 	 * @param string $script
