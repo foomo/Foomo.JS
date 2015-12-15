@@ -58,7 +58,7 @@ class Module extends \Foomo\Modules\ModuleBase
 		return array(
 			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
 			\Foomo\Modules\Resource\Module::getResource('Foomo.Bundle', '0.1.*'),
-			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs'),
+			\Foomo\Modules\Resource\NPMPackage::getResource('uglifyjs', '2.4.10'),
 		);
 	}
 

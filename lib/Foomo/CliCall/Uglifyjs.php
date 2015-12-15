@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\CliCall;
+use Foomo\NPM;
 
 /**
  * @link www.foomo.org
@@ -35,7 +36,7 @@ class Uglifyjs extends \Foomo\CliCall
 	 */
 	public function __construct($source)
 	{
-		parent::__construct('uglifyjs', array($source));
+		parent::__construct(NPM::which(\Foomo\JS\Module::NAME, 'uglifyjs'), array($source));
 	}
 
 	//---------------------------------------------------------------------------------------------
