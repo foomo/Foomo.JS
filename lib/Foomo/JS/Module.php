@@ -32,7 +32,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	//---------------------------------------------------------------------------------------------
 
 	const NAME		= 'Foomo.JS';
-	const VERSION	= '1.2.3';
+	const VERSION	= '1.2.4';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -58,7 +58,8 @@ class Module extends \Foomo\Modules\ModuleBase
 		return array(
 			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
 			\Foomo\Modules\Resource\Module::getResource('Foomo.Bundle', '0.1.*'),
-			\Foomo\Modules\Resource\NPMPackage::getResource('uglify-js', '2.8.29'),
+			//\Foomo\Modules\Resource\NPMPackage::getResource('uglify-js', '3.17.4'),
+			\Foomo\Modules\Resource\CliCommand::getResource('uglifyjs')
 		);
 	}
 
